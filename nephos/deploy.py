@@ -15,7 +15,7 @@
 #   limitations under the License.
 
 import json
-
+import logging
 import click
 from blessings import Terminal
 
@@ -34,6 +34,7 @@ from nephos.fabric.settings import load_config
 
 
 TERM = Terminal()
+log_format = '%(asctime)s %(module)-10s %(levelname)-8s %(message)s'
 
 
 class Settings(object):
@@ -70,6 +71,10 @@ pass_settings = click.make_pass_decorator(Settings, ensure=True)
 )
 @click.pass_context
 def cli(ctx, settings_file, upgrade, verbose):
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG, format=log_format)
+    else:
+        logging.basicConfig(level=logging.WARNING, format=log_format)
     ctx.obj = Settings(settings_file, upgrade, verbose)
 
 
