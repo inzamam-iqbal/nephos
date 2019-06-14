@@ -146,7 +146,7 @@ def pretty_print(string):
     Args:
         string (str): String we want to pretty print.
     """
-    print(highlight(string, JsonLexer(), TerminalFormatter()))
+    return highlight(string, JsonLexer(), TerminalFormatter())
 
 
 def rand_string(length):
