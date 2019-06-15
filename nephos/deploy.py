@@ -82,28 +82,28 @@ def cli(ctx, settings_file, upgrade, verbose):
 @pass_settings
 def cert_auth(settings):
     opts = load_config(settings.settings_file)
-    runner_ca(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_ca(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan("Install Hyperledger Composer"))
 @pass_settings
 def composer(settings):
     opts = load_config(settings.settings_file)
-    runner_composer(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_composer(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan("Upgrade Hyperledger Composer"))
 @pass_settings
 def composer_up(settings):
     opts = load_config(settings.settings_file)
-    runner_composer_up(opts, verbose=settings.verbose)
+    runner_composer_up(opts)
 
 
 @cli.command(help=TERM.cyan("Obtain cryptographic materials from CAs"))
 @pass_settings
 def crypto(settings):
     opts = load_config(settings.settings_file)
-    runner_crypto(opts, verbose=settings.verbose)
+    runner_crypto(opts)
 
 
 # TODO: Can we compose several CLI commands here to avoid copied code?
@@ -111,28 +111,28 @@ def crypto(settings):
 @pass_settings
 def deploy(settings):
     opts = load_config(settings.settings_file)
-    runner_deploy(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_deploy(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan("Install end-to-end Hyperledger Fabric network"))
 @pass_settings
 def fabric(settings):
     opts = load_config(settings.settings_file)
-    runner_fabric(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_fabric(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan("Install Hyperledger Fabric Orderers"))
 @pass_settings
 def orderer(settings):
     opts = load_config(settings.settings_file)
-    runner_orderer(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_orderer(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan("Install Hyperledger Fabric Peers"))
 @pass_settings
 def peer(settings):
     opts = load_config(settings.settings_file)
-    runner_peer(opts, upgrade=settings.upgrade, verbose=settings.verbose)
+    runner_peer(opts, upgrade=settings.upgrade)
 
 
 @cli.command(help=TERM.cyan('Load "nephos" settings YAML file'))

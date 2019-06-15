@@ -19,7 +19,7 @@ def test_cert_auth(mock_load_config, mock_runner_ca):
     mock_load_config.side_effect = ["some-opts"]
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "cert-auth"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
-    mock_runner_ca.assert_called_once_with("some-opts", upgrade=False, verbose=False)
+    mock_runner_ca.assert_called_once_with("some-opts", upgrade=False)
     assert result.exit_code == 0
 
 
@@ -30,7 +30,7 @@ def test_composer(mock_load_config, mock_runner_composer):
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "composer"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
     mock_runner_composer.assert_called_once_with(
-        "some-opts", upgrade=False, verbose=False
+        "some-opts", upgrade=False
     )
     assert result.exit_code == 0
 
@@ -43,7 +43,7 @@ def test_composer_up(mock_load_config, mock_runner_composer_up):
         cli, ["--settings_file", "nephos_config.yaml", "composer-up"]
     )
     mock_load_config.assert_called_once_with("nephos_config.yaml")
-    mock_runner_composer_up.assert_called_once_with("some-opts", verbose=False)
+    mock_runner_composer_up.assert_called_once_with("some-opts")
     assert result.exit_code == 0
 
 
@@ -53,7 +53,7 @@ def test_crypto(mock_load_config, mock_runner_crypto):
     mock_load_config.side_effect = ["some-opts"]
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "crypto"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
-    mock_runner_crypto.assert_called_once_with("some-opts", verbose=False)
+    mock_runner_crypto.assert_called_once_with("some-opts")
     assert result.exit_code == 0
 
 
@@ -64,7 +64,7 @@ def test_deploy(mock_load_config, mock_runner_deploy):
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "deploy"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
     mock_runner_deploy.assert_called_once_with(
-        "some-opts", upgrade=False, verbose=False
+        "some-opts", upgrade=False
     )
     assert result.exit_code == 0
 
@@ -76,7 +76,7 @@ def test_fabric(mock_load_config, mock_runner_fabric):
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "fabric"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
     mock_runner_fabric.assert_called_once_with(
-        "some-opts", upgrade=False, verbose=False
+        "some-opts", upgrade=False
     )
     assert result.exit_code == 0
 
@@ -88,7 +88,7 @@ def test_orderer(mock_load_config, mock_runner_orderer):
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "orderer"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
     mock_runner_orderer.assert_called_once_with(
-        "some-opts", upgrade=False, verbose=False
+        "some-opts", upgrade=False
     )
     assert result.exit_code == 0
 
@@ -99,7 +99,7 @@ def test_peer(mock_load_config, mock_runner_peer):
     mock_load_config.side_effect = ["some-opts"]
     result = RUNNER.invoke(cli, ["--settings_file", "nephos_config.yaml", "peer"])
     mock_load_config.assert_called_once_with("nephos_config.yaml")
-    mock_runner_peer.assert_called_once_with("some-opts", upgrade=False, verbose=False)
+    mock_runner_peer.assert_called_once_with("some-opts", upgrade=False)
     assert result.exit_code == 0
 
 
