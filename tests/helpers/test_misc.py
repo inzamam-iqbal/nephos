@@ -15,10 +15,12 @@ from nephos.helpers.misc import (
 class TestExecute:
     @patch("nephos.helpers.misc.check_output")
     @patch("nephos.helpers.misc.print")
-    def test_execute(self, mock_print, mock_check_output):
+    @patch("nephos.helpers.misc.logging")
+    def test_execute(self, mock_log, mock_print, mock_check_output):
         execute("ls")
         mock_print.assert_called_once()
         mock_print.assert_called_with("ls")
+        mock_log.debug.assert_called_once()
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
 
@@ -29,18 +31,6 @@ class TestExecute:
         mock_print.assert_not_called()
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
-
-    @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.print")
-    def test_execute_verbose(self, mock_print, mock_check_output):
-        # Add some side effects
-        mock_check_output.side_effect = ["output".encode("ascii")]
-        execute("ls", verbose=True)
-        # First check_output
-        mock_check_output.assert_called_once()
-        mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
-        # Then print
-        mock_print.assert_has_calls([call("ls"), call("output")])
 
     @patch("nephos.helpers.misc.check_output")
     @patch("nephos.helpers.misc.print")
@@ -84,53 +74,24 @@ class TestExecute:
 class TestExecuteUntilSuccess:
     @patch("nephos.helpers.misc.execute")
     @patch("nephos.helpers.misc.print")
-    def test_execute(self, mock_print, mock_execute):
+    @patch("nephos.helpers.misc.logging")
+    def test_execute(self, mock_log, mock_print, mock_execute):
         mock_execute.side_effect = [
             (None, "error"),
             (None, "error"),
             ("<h1>SomeWebsite</h1>", None),
         ]
         execute_until_success("curl example.com", delay=0)
-        mock_print.assert_has_calls([call(".", end="", flush=True)] * 2)
-        mock_execute.assert_has_calls(
-            [
-                call(
-                    "curl example.com",
-                    show_command=True,
-                    show_errors=True,
-                    verbose=False,
-                )
-            ]
-            + [
-                call(
-                    "curl example.com",
-                    show_command=False,
-                    show_errors=False,
-                    verbose=False,
-                )
-            ]
-            * 2
-        )
-
-    @patch("nephos.helpers.misc.execute")
-    @patch("nephos.helpers.misc.print")
-    def test_execute_verbose(self, mock_print, mock_execute):
-        mock_execute.side_effect = [
-            (None, "error"),
-            (None, "error"),
-            ("<h1>SomeWebsite</h1>", None),
-        ]
-        execute_until_success("curl example.com", verbose=True, delay=0)
         mock_print.assert_has_calls(
-            [call(".", end="", flush=True)] * 2 + [call("<h1>SomeWebsite</h1>")]
+            [call(".", end="", flush=True)] * 2
         )
+        mock_log.info.assert_has_calls([call("<h1>SomeWebsite</h1>")])
         mock_execute.assert_has_calls(
             [
                 call(
                     "curl example.com",
                     show_command=True,
                     show_errors=True,
-                    verbose=True,
                 )
             ]
             + [
@@ -138,7 +99,6 @@ class TestExecuteUntilSuccess:
                     "curl example.com",
                     show_command=False,
                     show_errors=False,
-                    verbose=False,
                 )
             ]
             * 2
@@ -182,14 +142,14 @@ class TestInputFiles:
     @patch("nephos.helpers.misc.open")
     @patch("nephos.helpers.misc.isfile")
     @patch("nephos.helpers.misc.get_response")
-    @patch("nephos.helpers.misc.print")
+    @patch("nephos.helpers.misc.logging")
     def test_input_files_mistake(
-        self, mock_print, mock_get_response, mock_isfile, mock_open
+        self, mock_log, mock_get_response, mock_isfile, mock_open
     ):
         mock_isfile.side_effect = [False, True]
         mock_get_response.side_effect = [self.files[0] + "OOPS", self.files[0]]
         data = input_files(("hello",))
-        mock_print.assert_called_once_with(
+        mock_log.warning.assert_called_once_with(
             f"{self.files[0] + 'OOPS'} is not a file"
         )
         mock_get_response.assert_has_calls([call("Input hello"), call("Input hello")])
@@ -202,14 +162,14 @@ class TestInputFiles:
     @patch("nephos.helpers.misc.open")
     @patch("nephos.helpers.misc.isfile")
     @patch("nephos.helpers.misc.get_response")
-    @patch("nephos.helpers.misc.print")
+    @patch("nephos.helpers.misc.logging")
     def test_input_files_cleankey(
-        self, mock_print, mock_get_response, mock_isfile, mock_open
+        self, mock_log, mock_get_response, mock_isfile, mock_open
     ):
         mock_isfile.side_effect = [True]
         mock_get_response.side_effect = [self.files[0]]
         data = input_files((None,), clean_key=True)
-        mock_print.assert_called_once_with(
+        mock_log.warning.assert_called_once_with(
             "Replaced some_file&.txt with some_file_.txt"
         )
         mock_get_response.assert_called_with("Input None")
@@ -255,12 +215,9 @@ class TestGetResponse:
 
 
 class TestPrettyPrint:
-    @patch("nephos.helpers.misc.print")
-    def test_pretty_print(self, mock_print):
-        pretty_print('{"some": "json"}')
-        mock_print.assert_called_with(
-            '{\x1b[34;01m"some"\x1b[39;49;00m: \x1b[33m"json"\x1b[39;49;00m}\n'
-        )
+    def test_pretty_print(self):
+        assert pretty_print('{"some": "json"}') == \
+               '{\x1b[34;01m"some"\x1b[39;49;00m: \x1b[33m"json"\x1b[39;49;00m}\n'
 
 
 class TestRandString:

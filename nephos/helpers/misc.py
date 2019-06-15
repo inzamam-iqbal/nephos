@@ -8,6 +8,7 @@ import re
 from string import ascii_letters, digits
 from subprocess import check_output, STDOUT, CalledProcessError
 import time
+import logging
 
 from blessings import Terminal
 from pygments import highlight
@@ -17,12 +18,11 @@ from pygments.formatters import TerminalFormatter
 t = Terminal()
 
 
-def execute(command, verbose=False, show_command=True, show_errors=True):
+def execute(command, show_command=True, show_errors=True):
     """Execute an arbitrary command line command.
 
     Args:
         command (str): Command to execute.
-        verbose (bool): Verbosity. False by default.
         show_command (bool): Do we display the command? True by default.
         show_errors (bool): Do we display errors? True by default.
 
@@ -37,8 +37,7 @@ def execute(command, verbose=False, show_command=True, show_errors=True):
         # TODO: Can we do this with a different command than check_output (Bandit security issue)
         result = check_output(command, stderr=STDOUT, shell=True)
         decoded = result.decode("utf-8")
-        if verbose:
-            print(decoded)
+        logging.debug(decoded)
         return decoded, None
     except CalledProcessError as e:
         error_text = e.output.decode("utf-8")
@@ -48,12 +47,11 @@ def execute(command, verbose=False, show_command=True, show_errors=True):
         return None, error_text
 
 
-def execute_until_success(command, verbose=False, delay=15):
+def execute_until_success(command, delay=15):
     """Execute a command until it is successful.
 
     Args:
         command (str): Command to execute.
-        verbose (bool): Verbosity. False by default.
         delay (int): Delay in seconds between each unsuccessful attempt.
 
     Returns:
@@ -65,7 +63,6 @@ def execute_until_success(command, verbose=False, delay=15):
         res, err = execute(
             command,
             show_command=first_pass,
-            verbose=verbose and first_pass,
             show_errors=first_pass,
         )
         first_pass = False
@@ -73,8 +70,7 @@ def execute_until_success(command, verbose=False, delay=15):
             print(t.red("."), end="", flush=True)
             time.sleep(delay)
         else:
-            if verbose:
-                print(res)
+            logging.info(res)
             return res
 
 
@@ -97,14 +93,14 @@ def input_files(keys, clean_key=False):
             filename = get_response(input_text.format(key=key))
             is_file = isfile(filename)
             if not is_file:
-                print(f"{filename} is not a file")
+                logging.warning(f"{filename} is not a file")
         if key is None:
             key = split(filename)[1]
             if clean_key:
                 dirty_key = key
                 key = re.sub(r"[^0-9a-zA-Z_.\-]+", "_", dirty_key)
                 if key != dirty_key:
-                    print(t.yellow("Replaced ") + dirty_key + t.yellow(" with ") + key)
+                    logging.warning(t.yellow("Replaced ") + dirty_key + t.yellow(" with ") + key)
         with open(filename, "rb") as f:
             data[key] = f.read()
     return data
