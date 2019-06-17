@@ -18,14 +18,14 @@ from pygments.formatters import TerminalFormatter
 t = Terminal()
 
 
-def execute(command, show_command=True, show_errors=True):
+def execute(command, show_response=True, show_command=True, show_errors=True):
     """Execute an arbitrary command line command.
 
     Args:
         command (str): Command to execute.
         show_command (bool): Do we display the command? True by default.
         show_errors (bool): Do we display errors? True by default.
-
+        show_response (bool): Do we display the respo
     Returns:
         tuple: 2-tuple of execution info:
         1) result of the command, if successful, None if not;
@@ -37,7 +37,8 @@ def execute(command, show_command=True, show_errors=True):
         # TODO: Can we do this with a different command than check_output (Bandit security issue)
         result = check_output(command, stderr=STDOUT, shell=True)
         decoded = result.decode("utf-8")
-        logging.debug(decoded)
+        if show_response:
+            logging.debug(decoded)
         return decoded, None
     except CalledProcessError as e:
         error_text = e.output.decode("utf-8")
@@ -63,6 +64,7 @@ def execute_until_success(command, delay=15):
         res, err = execute(
             command,
             show_command=first_pass,
+            show_response=first_pass,
             show_errors=first_pass,
         )
         first_pass = False
