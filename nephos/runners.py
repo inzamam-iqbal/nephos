@@ -11,6 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+import logging
 
 from nephos.fabric.ca import setup_ca
 from nephos.fabric.crypto import admin_msp, genesis_block, channel_tx, setup_nodes
@@ -31,7 +32,7 @@ def runner_ca(opts, upgrade=False):
     if opts["cas"]:
         setup_ca(opts, upgrade=upgrade)
     else:
-        print("No CAs defined in Nephos settings, ignoring CA setup")
+        logging.warning("No CAs defined in Nephos settings, ignoring CA setup")
 
 
 def runner_composer(opts, upgrade=False):

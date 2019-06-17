@@ -31,7 +31,7 @@ from nephos.runners import (
 )
 
 from nephos.fabric.settings import load_config
-
+from nephos.helpers.misc import pretty_print
 
 TERM = Terminal()
 log_format = '%(asctime)s %(module)-10s %(levelname)-8s %(message)s'
@@ -139,10 +139,8 @@ def peer(settings):
 @pass_settings
 def settings(settings):
     data = load_config(settings.settings_file)
-    print("Settings successfully loaded...\n")
-    if settings.verbose:
-        # TODO: Pretty print & colorise output
-        print(json.dumps(data, indent=4))
+    logging.info("Settings successfully loaded...\n")
+    logging.debug(pretty_print(json.dumps(data, indent=4)))
 
 
 if __name__ == "__main__":  # pragma: no cover

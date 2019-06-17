@@ -104,29 +104,15 @@ def test_peer(mock_load_config, mock_runner_peer):
 
 
 class TestSettings:
-    @patch("nephos.deploy.print")
+    @patch("nephos.deploy.pretty_print")
+    @patch("nephos.deploy.logging")
     @patch("nephos.deploy.load_config")
-    def test_settings(self, mock_load_config, mock_print):
-        mock_load_config.side_effect = ["some-opts"]
-        result = RUNNER.invoke(
-            cli, ["--settings_file", "nephos_config.yaml", "settings"]
-        )
-        mock_load_config.assert_called_once_with("nephos_config.yaml")
-        mock_print.assert_called_once_with("Settings successfully loaded...\n")
-        assert result.exit_code == 0
-
-    @patch("nephos.deploy.print")
-    @patch("nephos.deploy.load_config")
-    def test_settings_verbose(self, mock_load_config, mock_print):
+    def test_settings(self, mock_load_config, mock_log, mock_pretty_print):
         mock_load_config.side_effect = [{"key": "value"}]
         result = RUNNER.invoke(
             cli, ["-v", "--settings_file", "nephos_config.yaml", "settings"]
         )
         mock_load_config.assert_called_once_with("nephos_config.yaml")
-        mock_print.assert_has_calls(
-            [
-                call("Settings successfully loaded...\n"),
-                call('{\n    "key": "value"\n}'),
-            ]
-        )
+        mock_log.info.assert_called_once_with("Settings successfully loaded...\n")
+        mock_pretty_print.assert_called_once_with('{\n    "key": "value"\n}')
         assert result.exit_code == 0

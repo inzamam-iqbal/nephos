@@ -18,21 +18,21 @@ class TestRunnerCa:
     OPTS = {"cas": {"a-ca": {}}}
 
     @patch("nephos.runners.setup_ca")
-    @patch("nephos.runners.print")
-    def test_runner_ca(self, mock_print, mock_setup_ca):
+    @patch("nephos.runners.logging")
+    def test_runner_ca(self, mock_log, mock_setup_ca):
         opts = deepcopy(self.OPTS)
         runner_ca(opts, upgrade=False)
         mock_setup_ca.assert_called_once_with(opts, upgrade=False)
-        mock_print.assert_not_called()
+        mock_log.warning.assert_not_called()
 
     @patch("nephos.runners.setup_ca")
-    @patch("nephos.runners.print")
-    def test_runner_ca_cryptogen(self, mock_print, mock_setup_ca):
+    @patch("nephos.runners.logging")
+    def test_runner_ca_cryptogen(self, mock_log, mock_setup_ca):
         opts = deepcopy(self.OPTS)
         del opts["cas"]["a-ca"]
         runner_ca(opts, upgrade=False)
         mock_setup_ca.assert_not_called()
-        mock_print.assert_called_once_with(
+        mock_log.warning.assert_called_once_with(
             "No CAs defined in Nephos settings, ignoring CA setup"
         )
 
