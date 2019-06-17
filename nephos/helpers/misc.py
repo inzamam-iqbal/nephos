@@ -32,7 +32,7 @@ def execute(command, show_response=True, show_command=True, show_errors=True):
         2) and error, if command failed, None if not.
     """
     if show_command:
-        print(t.magenta(command))
+        logging.info(t.magenta(command))
     try:
         # TODO: Can we do this with a different command than check_output (Bandit security issue)
         result = check_output(command, stderr=STDOUT, shell=True)
@@ -43,8 +43,8 @@ def execute(command, show_response=True, show_command=True, show_errors=True):
     except CalledProcessError as e:
         error_text = e.output.decode("utf-8")
         if show_errors:
-            print(t.red("Command failed with CalledProcessError:"))
-            print(error_text)
+            logging.error(t.red("Command failed with CalledProcessError:"))
+            logging.error(error_text)
         return None, error_text
 
 
@@ -119,9 +119,9 @@ def get_response(question, permitted_responses=(), sensitive=False):
     Returns:
         str: Response from user.
     """
-    print(t.yellow(question))
+    logging.info(t.yellow(question))
     if permitted_responses:
-        print(t.cyan("Permitted responses: " + str(permitted_responses)))
+        logging.info(t.cyan("Permitted responses: " + str(permitted_responses)))
     responded = 0
     while responded == 0:
         if sensitive:
@@ -134,7 +134,7 @@ def get_response(question, permitted_responses=(), sensitive=False):
             responded = 1
         # Otherwise we ping the user to input a response
         if not responded:
-            print(t.red("Invalid response, try again!"))
+            logging.error(t.red("Invalid response, try again!"))
     return response
 
 

@@ -14,27 +14,26 @@ from nephos.helpers.misc import (
 
 class TestExecute:
     @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.print")
     @patch("nephos.helpers.misc.logging")
-    def test_execute(self, mock_log, mock_print, mock_check_output):
+    def test_execute(self, mock_log, mock_check_output):
         execute("ls")
-        mock_print.assert_called_once()
-        mock_print.assert_called_with("ls")
+        mock_log.info.assert_called_once()
+        mock_log.info.assert_called_with("ls")
         mock_log.debug.assert_called_once()
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
 
     @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.print")
-    def test_execute_quiet(self, mock_print, mock_check_output):
+    @patch("nephos.helpers.misc.logging")
+    def test_execute_quiet(self, mock_log, mock_check_output):
         execute("ls", show_command=False)
-        mock_print.assert_not_called()
+        mock_log.info.assert_not_called()
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
 
     @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.print")
-    def test_execute_error(self, mock_print, mock_check_output):
+    @patch("nephos.helpers.misc.logging")
+    def test_execute_error(self, mock_log, mock_check_output):
         # Add some side effects
         mock_check_output.side_effect = CalledProcessError(
             cmd="lst",
@@ -45,18 +44,18 @@ class TestExecute:
         # First check_output
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("lst", shell=True, stderr=-2)
-        # Then print
-        mock_print.assert_has_calls(
+        # Then log
+        mock_log.info.assert_called_with("lst")
+        mock_log.error.assert_has_calls(
             [
-                call("lst"),
                 call("Command failed with CalledProcessError:"),
                 call("/bin/sh: lst: command not found"),
             ]
         )
 
     @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.print")
-    def test_execute_error_quiet(self, mock_print, mock_check_output):
+    @patch("nephos.helpers.misc.logging")
+    def test_execute_error_quiet(self, mock_log, mock_check_output):
         # Add some side effects
         mock_check_output.side_effect = CalledProcessError(
             cmd="lst",
@@ -68,7 +67,7 @@ class TestExecute:
         mock_check_output.assert_called_once()
         mock_check_output.assert_called_with("lst", shell=True, stderr=-2)
         # Then print
-        mock_print.assert_not_called()
+        mock_log.error.assert_not_called()
 
 
 class TestExecuteUntilSuccess:
@@ -113,12 +112,12 @@ class TestInputFiles:
     @patch("nephos.helpers.misc.open")
     @patch("nephos.helpers.misc.isfile")
     @patch("nephos.helpers.misc.get_response")
-    @patch("nephos.helpers.misc.print")
-    def test_input_files(self, mock_print, mock_get_response, mock_isfile, mock_open):
+    @patch("nephos.helpers.misc.logging")
+    def test_input_files(self, mock_log, mock_get_response, mock_isfile, mock_open):
         mock_isfile.side_effect = [True]
         mock_get_response.side_effect = [self.files[0]]
         data = input_files(("hello",))
-        mock_print.assert_not_called()
+        mock_log.warning.assert_not_called()
         mock_get_response.assert_called_with("Input hello")
         mock_isfile.assert_called_with(self.files[0])
         mock_open.assert_called_with(self.files[0], "rb")
@@ -127,14 +126,14 @@ class TestInputFiles:
     @patch("nephos.helpers.misc.open")
     @patch("nephos.helpers.misc.isfile")
     @patch("nephos.helpers.misc.get_response")
-    @patch("nephos.helpers.misc.print")
+    @patch("nephos.helpers.misc.logging")
     def test_input_files_multiple(
-        self, mock_print, mock_get_response, mock_isfile, mock_open
+        self, mock_log, mock_get_response, mock_isfile, mock_open
     ):
         mock_isfile.side_effect = [True, True]
         mock_get_response.side_effect = self.files
         data = input_files(("hello", "goodbye"))
-        mock_print.assert_not_called()
+        mock_log.warning.assert_not_called()
         mock_get_response.assert_has_calls([call("Input hello"), call("Input goodbye")])
         mock_isfile.assert_has_calls([call(self.files[0]), call(self.files[1])])
         mock_open.assert_any_call(self.files[0], "rb")
@@ -182,38 +181,38 @@ class TestInputFiles:
 
 class TestGetResponse:
     @patch("nephos.helpers.misc.input")
-    @patch("nephos.helpers.misc.print")
-    def test_get_response(self, mock_print, mock_input):
+    @patch("nephos.helpers.misc.logging")
+    def test_get_response(self, mock_log, mock_input):
         mock_input.side_effect = ["An answer"]
         answer = get_response("A question")
         mock_input.assert_called_once()
-        mock_print.assert_called_with("A question")
+        mock_log.info.assert_called_with("A question")
         assert answer == "An answer"
 
     @patch("nephos.helpers.misc.getpass")
     @patch("nephos.helpers.misc.input")
-    @patch("nephos.helpers.misc.print")
-    def test_get_response_password(self, mock_print, mock_input, mock_getpass):
+    @patch("nephos.helpers.misc.logging")
+    def test_get_response_password(self, mock_log, mock_input, mock_getpass):
         mock_getpass.side_effect = ["A password"]
         answer = get_response("A question", sensitive=True)
         mock_input.assert_not_called()
-        mock_print.assert_called_with("A question")
+        mock_log.info.assert_called_with("A question")
         mock_getpass.assert_called_once_with("Password:")
         assert answer == "A password"
 
     @patch("nephos.helpers.misc.input")
-    @patch("nephos.helpers.misc.print")
-    def test_get_response_options(self, mock_print, mock_input):
+    @patch("nephos.helpers.misc.logging")
+    def test_get_response_options(self, mock_log, mock_input):
         mock_input.side_effect = ["mistake", "y"]
         get_response("A question", ("y", "n"))
         mock_input.assert_has_calls([call()] * 2)
-        mock_print.assert_has_calls(
+        mock_log.info.assert_has_calls(
             [
                 call("A question"),
                 call("Permitted responses: ('y', 'n')"),
-                call("Invalid response, try again!"),
             ]
         )
+        mock_log.error.assert_called_with("Invalid response, try again!")
 
 
 class TestPrettyPrint:
