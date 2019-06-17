@@ -90,6 +90,7 @@ class TestExecuteUntilSuccess:
             [
                 call(
                     "curl example.com",
+                    show_response=True,
                     show_command=True,
                     show_errors=True,
                 )
@@ -97,6 +98,7 @@ class TestExecuteUntilSuccess:
             + [
                 call(
                     "curl example.com",
+                    show_response=False,
                     show_command=False,
                     show_errors=False,
                 )
