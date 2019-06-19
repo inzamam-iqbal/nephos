@@ -152,15 +152,12 @@ def pod_check(namespace, identifier, sleep_interval=10, pod_num=None):
     """
     logging.info("Ensuring that all pods are running ")
     running = False
-    first_pass = True
     while not running:
         states, _ = execute(
-            f'kubectl get pods -n {namespace} {identifier} -o jsonpath="{{.items[*].status.phase}}"',
-            show_command=first_pass,
+            f'kubectl get pods -n {namespace} {identifier} -o jsonpath="{{.items[*].status.phase}}"'
         )
         states_list = states.split()
         # Let us also check the number of pods we have
-        first_pass = False
         # We keep checking the state of the pods until they are running
         states = set(states_list)
         if (

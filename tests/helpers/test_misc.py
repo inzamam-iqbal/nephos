@@ -25,14 +25,6 @@ class TestExecute:
 
     @patch("nephos.helpers.misc.check_output")
     @patch("nephos.helpers.misc.logging")
-    def test_execute_quiet(self, mock_log, mock_check_output):
-        execute("ls", show_command=False)
-        mock_log.info.assert_not_called()
-        mock_check_output.assert_called_once()
-        mock_check_output.assert_called_with("ls", shell=True, stderr=-2)
-
-    @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.logging")
     def test_execute_error(self, mock_log, mock_check_output):
         # Add some side effects
         mock_check_output.side_effect = CalledProcessError(
@@ -53,22 +45,6 @@ class TestExecute:
             ]
         )
 
-    @patch("nephos.helpers.misc.check_output")
-    @patch("nephos.helpers.misc.logging")
-    def test_execute_error_quiet(self, mock_log, mock_check_output):
-        # Add some side effects
-        mock_check_output.side_effect = CalledProcessError(
-            cmd="lst",
-            returncode=127,
-            output="/bin/sh: lst: command not found".encode("ascii"),
-        )
-        execute("lst", show_command=False, show_errors=False)
-        # First check_output
-        mock_check_output.assert_called_once()
-        mock_check_output.assert_called_with("lst", shell=True, stderr=-2)
-        # Then print
-        mock_log.error.assert_not_called()
-
 
 class TestExecuteUntilSuccess:
     @patch("nephos.helpers.misc.execute")
@@ -88,18 +64,7 @@ class TestExecuteUntilSuccess:
         mock_execute.assert_has_calls(
             [
                 call(
-                    "curl example.com",
-                    show_response=True,
-                    show_command=True,
-                    show_errors=True,
-                )
-            ]
-            + [
-                call(
-                    "curl example.com",
-                    show_response=False,
-                    show_command=False,
-                    show_errors=False,
+                    "curl example.com"
                 )
             ]
             * 2
