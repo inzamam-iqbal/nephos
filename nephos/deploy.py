@@ -38,10 +38,11 @@ log_format = '%(asctime)s %(module)-10s %(levelname)-8s %(message)s'
 
 
 class Settings(object):
-    def __init__(self, settings_file, upgrade, verbose):
+    def __init__(self, settings_file, upgrade, verbose, out):
         self.settings_file = settings_file
         self.upgrade = upgrade
         self.verbose = verbose
+        self.out = out
 
 
 pass_settings = click.make_pass_decorator(Settings, ensure=True)
@@ -69,13 +70,21 @@ pass_settings = click.make_pass_decorator(Settings, ensure=True)
     default=False,
     help=TERM.cyan("Do we want verbose output?"),
 )
+@click.option(
+    "--out",
+    "-o",
+    default=None,
+    help=TERM.cyan("Where do you want to output your logs?"),
+)
 @click.pass_context
-def cli(ctx, settings_file, upgrade, verbose):
+def cli(ctx, settings_file, upgrade, verbose, out):
     if verbose:
         logging.basicConfig(level=logging.DEBUG, format=log_format)
     else:
         logging.basicConfig(level=logging.WARNING, format=log_format)
-    ctx.obj = Settings(settings_file, upgrade, verbose)
+    if out is not None:
+        logging.basicConfig(filename=out, filemode='a')
+    ctx.obj = Settings(settings_file, upgrade, verbose, out)
 
 
 @cli.command(help=TERM.cyan("Install Hyperledger Fabric Certificate Authorities"))
