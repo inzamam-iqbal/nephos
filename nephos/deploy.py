@@ -35,7 +35,8 @@ from nephos.helpers.misc import pretty_print
 
 TERM = Terminal()
 log_format = '%(asctime)s %(module)-10s %(levelname)-8s %(message)s'
-
+logging_level = logging.INFO
+log_file = "/tmp/nephos_log"
 
 class Settings(object):
     def __init__(self, settings_file, upgrade, verbose, out):
@@ -78,12 +79,19 @@ pass_settings = click.make_pass_decorator(Settings, ensure=True)
 )
 @click.pass_context
 def cli(ctx, settings_file, upgrade, verbose, out):
+    global log_file, logging_level
     if verbose:
-        logging.basicConfig(level=logging.DEBUG, format=log_format)
-    else:
-        logging.basicConfig(level=logging.WARNING, format=log_format)
+        logging_level = logging.DEBUG
     if out is not None:
-        logging.basicConfig(filename=out, filemode='a')
+        log_file = out
+    logging.basicConfig(
+        level=logging_level,
+        format=log_format,
+        handlers=[
+            logging.FileHandler(filename=log_file, mode='a', encoding='utf-8'),
+            logging.StreamHandler()
+        ]
+    )
     ctx.obj = Settings(settings_file, upgrade, verbose, out)
 
 
