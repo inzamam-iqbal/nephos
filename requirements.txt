@@ -22,7 +22,7 @@ GitPython==3.0.1
 google-auth==1.6.3
 idna==2.8
 imagesize==1.1.0
-Jinja2==2.10.1
+Jinja2==2.11.3
 kubernetes==10.0.1
 m2r==0.2.1
 MarkupSafe==1.1.1
@@ -38,14 +38,14 @@ py==1.8.0
 pyasn1==0.4.6
 pyasn1-modules==0.2.6
 pycparser==2.19
-Pygments==2.3.1
+Pygments==2.7.4
 PyJWT==1.7.1
 pyparsing==2.4.2
 pytest==5.1.1
 pytest-cov==2.7.1
 python-dateutil==2.8.0
 pytz==2019.2
-PyYAML==5.1.2
+PyYAML==5.2
 readme-renderer==24.0
 requests==2.22.0
 requests-oauthlib==1.2.0
